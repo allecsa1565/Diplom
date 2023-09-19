@@ -1,5 +1,5 @@
 function generateTicket() {
-    const selectSeanse = JSON.parse(localStorage.selectSeanse);
+    const selectSeanse = JSON.parse(localStorage.getItem(`selectSeanse`));
     console.log(selectSeanse);
 
     let places = "";
