@@ -9,11 +9,9 @@ window.addEventListener(`load`, () => {
   method: 'POST',
   url: `https://jscp-diplom.netoserver.ru/`,
   params: `event=get_hallConfig&timestamp=${metaDataHall.seanceTimeStamp}&hallId=${metaDataHall.hallId}&seanceId=${metaDataHall.seanceId}`,
+    
   callback: (resp) =>  {
-  // Запрос актуальной конфигурации мест
-   createRequest(xhr);
-})
-    // Проверка на заполненность зала
+  // Проверка на заполненность зала
     checkTickets(requestHallConfig);
     // Вывести всю информацию по сеансу
     showHall();
@@ -21,6 +19,9 @@ window.addEventListener(`load`, () => {
     btnBuying();
   }
 }
+   // Запрос актуальной конфигурации мест
+   createRequest(xhr);
+})
 // Проверка на заполненность зала
 function checkTickets(requestHallConfig) {
   // (requestHallConfig && requestHallConfig !== metaDataHall.hallConfig) ? 
