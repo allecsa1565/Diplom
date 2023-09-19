@@ -8,14 +8,12 @@ window.addEventListener(`load`, () => {
   let xhr = {
   method: 'POST',
   url: `https://jscp-diplom.netoserver.ru/`,
-  responseType: 'json',
-  setRequestHeader: {header: 'Content-type', headerValue:'application/x-www-form-urlencoded'},
-  event: `event=get_hallConfig&timestamp=${metaDataHall.seanceTimeStamp}&hallId=${metaDataHall.hallId}&seanceId=${metaDataHall.seanceId}`,
+  params: `event=get_hallConfig&timestamp=${metaDataHall.seanceTimeStamp}&hallId=${metaDataHall.hallId}&seanceId=${metaDataHall.seanceId}`,
+  callback: (resp) =>  {
   }
   // Запрос актуальной конфигурации мест
-  xhr = createRequest(xhr);
-  xhr.onload = () => {
-    const requestHallConfig = xhr.response;
+   createRequest(xhr);
+})
     // Проверка на заполненность зала
     checkTickets(requestHallConfig);
     // Вывести всю информацию по сеансу
@@ -23,8 +21,7 @@ window.addEventListener(`load`, () => {
     // Создать кнопку покупки билетов
     btnBuying();
   }
-})
-
+}
 // Проверка на заполненность зала
 function checkTickets(requestHallConfig) {
   // (requestHallConfig && requestHallConfig !== metaDataHall.hallConfig) ? 
@@ -34,7 +31,7 @@ function checkTickets(requestHallConfig) {
 /// Вывести все места в зале
 function showSeats(hallConfig) {
   const confStepWrapper = buying.querySelector(`.conf-step__wrapper`);
-  confStepWrapper.innerHTML += hallConfig;
+  confStepWrapper.innerHTML = hallConfig;
 }
 
 // Вывести всю информацию по сеансу
