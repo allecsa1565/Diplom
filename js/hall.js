@@ -10,7 +10,7 @@ window.addEventListener(`load`, () => {
   url: `https://jscp-diplom.netoserver.ru/`,
   params: `event=get_hallConfig&timestamp=${metaDataHall.seanceTimeStamp}&hallId=${metaDataHall.hallId}&seanceId=${metaDataHall.seanceId}`,
     
-  callback: (resp) =>  {
+  callback: (requestHallConfig ) =>  {
   // Проверка на заполненность зала
     checkTickets(requestHallConfig);
     // Вывести всю информацию по сеансу
