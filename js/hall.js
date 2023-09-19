@@ -1,6 +1,6 @@
 "use strict"
 
-const metaDataHall = JSON.parse(localStorage.getItem(`seanceMeta`));
+const metaDataHall = JSON.parse(localStorage.getItem(`selectSeanse`));
 let buying;
 
 window.addEventListener(`load`, () => {
