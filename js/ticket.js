@@ -1,44 +1,39 @@
-function generateTicket() {
-    const selectSeanse = JSON.parse(localStorage.getItem(`selectSeanse`));
-    console.log(selectSeanse);
+"use strict"
 
-    let places = "";
-    let price = 0;
+const metaDataBuying = JSON.parse(localStorage.getItem(`buyingMeta`));
+let ticketWrapper;
 
-    selectSeanse.salesPlaces.forEach((element) => {
-        if (places != "") {
-            places += ", ";
-        }
-        places += `${element.row}/${element.place}`;
-        price += element.type == "standart" ? Number(selectSeanse.priceStandart) : Number(selectSeanse.priceVip);
-    });
+window.addEventListener(`load`, () => {
+  ticketWrapper = document.querySelector(`.ticket__info-wrapper`);
+  // Вывести всю информацию по билетам
+  showTicket();
+})
 
-    document.querySelector(".ticket__title").innerHTML = selectSeanse.filmName;
-    document.querySelector(".ticket__chairs").innerHTML = places;
-    document.querySelector(".ticket__hall").innerHTML = selectSeanse.hallName;
-    document.querySelector(".ticket__start").innerHTML = selectSeanse.seanceTime;
-
-    const date = new Date(Number(`${selectSeanse.seanceTimeStamp}000`));
-    let dd = date.getDate();
-    if (dd < 10) {
-        dd = "0" + dd;
-    }
-    let mm = date.getMonth();
-    if (mm < 10) {
-        mm = "0" + mm;
-    }
-    const dateStr = date.toLocaleDateString("ru-RU", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric"
-    });
-    let textQR = `Фильм: ${selectSeanse.filmName} Зал: ${selectSeanse.hallName} Ряд/Место ${places} Дата: ${dateStr} Начало сеанса: ${selectSeanse.seanceTime} Билет действителен строго на свой сеанс`;
-    const qrcode = QRCreator(textQR, {
-        image: "SVG"
-    });
-    qrcode.download();
-    document.querySelector(".ticket__info-qr").append(qrcode.result);
-    console.log(qrcode.result);
+// Вывести всю информацию по билетам
+function showTicket() {
+  // Изменить информацию по брони
+  changeInfoBuying();
+  // Показать QR
+  showQR();
 }
 
-document.addEventListener("DOMContentLoaded", generateTicket);
+// Изменить информацию по брони
+function changeInfoBuying() {
+  ticketWrapper.querySelector(`.ticket__title`).textContent = metaDataBuying.movieTitle;
+  ticketWrapper.querySelector(`.ticket__chairs`).textContent = metaDataBuying.rowAndSeat;
+  ticketWrapper.querySelector(`.ticket__hall`).textContent = metaDataBuying.hallName;
+  ticketWrapper.querySelector(`.ticket__start`).textContent = metaDataBuying.seanceTime;
+}
+
+// Показать QR
+function showQR() {
+  const qrcode = QRCreator(metaDataBuying.qrMeta, {image: 'SVG'});
+  
+  const content = (qrcode => {
+    return qrcode.error ?
+      `недопустимые исходные данные ${qrcode.error}` :
+       qrcode.result;
+  });
+
+  ticketWrapper.querySelector(`.ticket__info-qr`).appendChild(content(qrcode));
+}
