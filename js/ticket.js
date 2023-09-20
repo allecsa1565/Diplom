@@ -1,39 +1,39 @@
-"use strict"
+const selectSeanse = JSON.parse(localStorage.get.Item("selectSeanse"));
 
-const metaDataBuying = JSON.parse(localStorage.getItem(`buyingMeta`));
-let ticketWrapper;
+let places = "";
+let price = 0;
 
-window.addEventListener(`load`, () => {
-  ticketWrapper = document.querySelector(`.ticket__info-wrapper`);
-  // Вывести всю информацию по билетам
-  showTicket();
-})
-
-// Вывести всю информацию по билетам
-function showTicket() {
-  // Изменить информацию по брони
-  changeInfoBuying();
-  // Показать QR
-  showQR();
+for (const {
+		row, place, type
+	}
+	of selectSeanse.salesPlaces) {
+	if (places !== "") {
+		places += ", ";
+	}
+	places += `${row}/${place}`;
+	price += type === "standart" ? Number(selectSeanse.priceStandart) : Number(selectSeanse.priceVip);
 }
 
-// Изменить информацию по брони
-function changeInfoBuying() {
-  ticketWrapper.querySelector(`.ticket__title`).textContent = metaDataBuying.movieTitle;
-  ticketWrapper.querySelector(`.ticket__chairs`).textContent = metaDataBuying.rowAndSeat;
-  ticketWrapper.querySelector(`.ticket__hall`).textContent = metaDataBuying.hallName;
-  ticketWrapper.querySelector(`.ticket__start`).textContent = metaDataBuying.seanceTime;
-}
+document.querySelector(".ticket__title").innerHTML = selectSeanse.filmName;  
+document.querySelector(".ticket__chairs").innerHTML = places; 
+document.querySelector(".ticket__hall").innerHTML = selectSeanse.hallName;  
+document.querySelector(".ticket__start").innerHTML = selectSeanse.seanceTime;  
+document.querySelector(".ticket__cost").innerHTML = price;  
 
-// Показать QR
-function showQR() {
-  const qrcode = QRCreator(metaDataBuying.qrMeta, {image: 'SVG'});
-  
-  const content = (qrcode => {
-    return qrcode.error ?
-      `недопустимые исходные данные ${qrcode.error}` :
-       qrcode.result;
-  });
+const newHallConfig = selectSeanse.hallConfig.replace(/selected/g, "taken");
 
-  ticketWrapper.querySelector(`.ticket__info-qr`).appendChild(content(qrcode));
-}
+console.log(selectSeanse.seanceTimeStamp);
+console.log(selectSeanse.hallId);
+console.log(selectSeanse.seanceId);
+console.log(newHallConfig);
+
+document.querySelector(".acceptin-button").addEventListener("click", (event) => {
+	event.preventDefault();
+	fetch("https://jscp-diplom.netoserver.ru/", {
+		method: "POST",
+		headers: {
+			'Content-Type' : 'application/x-www-form-urlencoded'
+		},
+		body: `event=sale_add&timestamp=${selectSeanse.seanceTimeStamp}&hallId=${selectSeanse.hallId}&seanceId=${selectSeanse.seanceId}&hallConfiguration=${newHallConfig}`,
+	});
+});
