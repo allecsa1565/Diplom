@@ -1,151 +1,83 @@
-"use strict"
+const selectSeanse = JSON.parse(localStorage.getItem("selectSeanse"));
+console.log(selectSeanse);
 
-const metaDataHall = JSON.parse(localStorage.getItem(`selectSeanse`));
-let buying;
+document.addEventListener("DOMContentLoaded", () => {
+	const buttonAcceptin = document.querySelector('.acceptin-button');
+	const buyingInfoTitle = document.querySelector('.buying__info-title');
+	const buyingInfoStart = document.querySelector('.buying__info-start');
+	const buyingInfoHall = document.querySelector('.buying__info-hall');
+	const priceStandart = document.querySelector('.price-standart');
+	const confStepWrapper = document.querySelector('.conf-step__wrapper');
 
-window.addEventListener(`load`, () => {
-  buying = document.querySelector(`.buying`);
-  let xhr = {
-  method: 'POST',
-  url: `https://jscp-diplom.netoserver.ru/`,
-  params: `event=get_hallConfig&timestamp=${metaDataHall.seanceTimeStamp}&hallId=${metaDataHall.hallId}&seanceId=${metaDataHall.seanceId}`,
-    
-  callback: (requestHallConfig ) =>  {
-  // Проверка на заполненность зала
-    checkTickets(requestHallConfig);
-    // Вывести всю информацию по сеансу
-    showHall();
-    // Создать кнопку покупки билетов
-    btnBuying();
-  }
-}
-   // Запрос актуальной конфигурации мест
-   createRequest(xhr);
-})
-// Проверка на заполненность зала
-function checkTickets(requestHallConfig) {
-  // (requestHallConfig && requestHallConfig !== metaDataHall.hallConfig) ? 
-  (requestHallConfig) ? showSeats(requestHallConfig) : showSeats(metaDataHall.hallConfig);
-}
+	buyingInfoTitle.innerHTML = selectSeanse.filmName;
+	buyingInfoStart.innerHTML = `Начало сеанса ${selectSeanse.seanceTime}`;
+	buyingInfoHall.innerHTML = selectSeanse.hallName;
+	priceStandart.innerHTML = selectSeanse.priceStandart;
 
-/// Вывести все места в зале
-function showSeats(hallConfig) {
-  const confStepWrapper = buying.querySelector(`.conf-step__wrapper`);
-  confStepWrapper.innerHTML = hallConfig;
-}
+	const params = `event=get_hallConfig&timestamp=${selectSeanse.seanceTimeStamp}&hallId=${selectSeanse.hallId}&seanceId=${selectSeanse.seanceId}`;
 
-// Вывести всю информацию по сеансу
-function showHall() {
-  // Изменить информацию о сеансе в шапке
-  changeInfo();
-  // Раздача кнопок выбора места
-  btnSelected();
-}
+	createRequest({
+		url: "https://jscp-diplom.netoserver.ru/",
+		params,
+		callback: (resp) => {
+			console.log(resp);
+			if (resp) {
+				selectSeanse.hallConfig = resp;
+			}
+			confStepWrapper.innerHTML = selectSeanse.hallConfig;
+			const chairs = [...document.querySelectorAll('.conf-step__row .conf-step__chair')];
+			let chairsSelected = [...document.querySelectorAll('.conf-step__row .conf-step__chair_selected')];
+			if (chairsSelected.length) {
+				buttonAcceptin.removeAttribute("disabled");
+			} else {
+				buttonAcceptin.setAttribute("disabled", true);
+			}
+			chairs.forEach((chair) => {
+				chair.addEventListener('click', (event) => {
+					if (event.target.classList.contains('conf-step__chair_taken')) {
+						return;
+					}
+					event.target.classList.toggle('conf-step__chair_selected');
+					chairsSelected = [...document.querySelectorAll('.conf-step__row .conf-step__chair_selected')];
+					if (chairsSelected.length) {
+						buttonAcceptin.removeAttribute("disabled");
+					} else {
+						buttonAcceptin.setAttribute("disabled", true);
+					}
+				});
+			});
+		}
+	});
 
-// Изменить информацию о сеансе в шапке
-function changeInfo() {
-  buying.querySelector(`.buying__info-title`).textContent = metaDataHall.movieTitle;
-  buying.querySelector(`.buying__info-start`).textContent = `Начало сеанса: ${metaDataHall.seanceTime}`;
-  buying.querySelector(`.buying__info-hall`).textContent = metaDataHall.hallTitle;
-  // Изменить стоимость билетов
-  changePrise();
-}
-
-// Изменить стоимость билетов
-function changePrise() {
-  buying.querySelector(`.price-standart`).textContent = metaDataHall.priceStandart + ` `;
-  buying.querySelector(`.price-vip`).textContent = metaDataHall.priseVip + ` `;
-}
-
-// Раздача кнопок выбора места
-function btnSelected() {
-  const confStepChairs = buying.querySelectorAll(`.conf-step__chair`);
-  confStepChairs.forEach(chair => {
-    // Выбор места
-    chair.addEventListener(`click`, () => {
-      selectSeat(chair);
-    });
-  })
-}
-
-// Проверка на свободное место
-function selectSeat(seat) {
-  const closedPlaces = [`conf-step__chair_disabled`, `conf-step__chair_taken`];
-  if (!seat.classList.contains(closedPlaces[0]) && !seat.classList.contains(closedPlaces[1])) {
-    seat.classList.toggle(`conf-step__chair_selected`);
-  }
-}
-
-// Создать кнопку покупки билетов
-function btnBuying() {
-  const acceptinButton = buying.querySelector(`.acceptin-button`);
-  // Формирование брони
-  acceptinButton.addEventListener(`click`, formationBooking);
-}
-
-// Формирование брони
-function formationBooking() {
-  // Поиск выбранных мест
-  const rowAndSeat = searchSelectedChair();
-  // Проверка наличия выбранных мест
-  if (rowAndSeat.length === 0) {
-    return
-  }
-  // Создание общей стоимости билетов
-  const price = creatPrice();
-  // Подготовка конфигурации зала с учетом выбранных мест
-  const hallConfig = creatHallConfig();
-  // Создание мета данных выбранных билетов для веб-хранилища
-  creatMetaData(hallConfig, rowAndSeat, price);
-  window.location = `payment.html`;
-}
-
-// Поиск выбранных мест
-function searchSelectedChair() {
-  const rowAndSeat = [];
-  const confStepRow = buying.querySelectorAll(`.conf-step__row`);
-  confStepRow.forEach((row, level) => {
-    const confStepChairs = row.querySelectorAll(`.conf-step__chair`);
-    confStepChairs.forEach((chair, index) => {
-      if (chair.classList.contains(`conf-step__chair_selected`)) {
-        rowAndSeat.push(` ${level + 1}/${index + 1}`);
-      }
-    })
-  })
-  return rowAndSeat
-}
-
-// Создание общей стоимости билетов
-function creatPrice() {
-  let price = 0;
-  const selectedChair = buying.querySelector(`.conf-step__wrapper`).querySelectorAll(`.conf-step__chair_selected`);
-  selectedChair.forEach(chair => {
-    chair.classList.contains(`conf-step__chair_vip`) ? (price += +metaDataHall.priseVip) : (price += +metaDataHall.priceStandart);
-  })
-  return price;
-}
-
-// Подготовка конфигурации зала с учетом выбранных мест
-function creatHallConfig() {
-  const selectedChair = buying.querySelector(`.conf-step__wrapper`).querySelectorAll(`.conf-step__chair_selected`);
-  selectedChair.forEach(chair => {
-    chair.className = `conf-step__chair conf-step__chair_taken`;
-  })
-  return buying.querySelector(`.conf-step__wrapper`).innerHTML;
-}
-
-// Создание мета данных выбранных билетов для веб-хранилища
-function creatMetaData(hallConfig, rowAndSeat, price) {
-  const buyingMetaData = {
-    movieTitle: metaDataHall.movieTitle,
-    rowAndSeat: rowAndSeat,
-    hallId: metaDataHall.hallId,
-    seanceId: metaDataHall.seanceId,
-    hallConfig: hallConfig,
-    seanceTime: metaDataHall.seanceTime,
-    seanceTimeStamp: metaDataHall.seanceTimeStamp,
-    hallName: metaDataHall.hallName,
-    price: price,
-  };
-  localStorage.setItem(`buyingMeta`, JSON.stringify(buyingMetaData));
-}
+	// We hang the onclick event on the button
+	buttonAcceptin.addEventListener("click", (event) => {
+		event.preventDefault();
+		// We form a list of selected places
+		const selectedPlaces = Array();
+		const divRows = Array.from(document.getElementsByClassName("conf-step__row"));
+		for (let i = 0; i < divRows.length; i++) {
+			const spanPlaces = Array.from(divRows[i].getElementsByClassName("conf-step__chair"));
+			for (let j = 0; j < spanPlaces.length; j++) {
+				if (spanPlaces[j].classList.contains("conf-step__chair_selected")) {
+					// Determine the type of chair chosen
+					const typePlace = (spanPlaces[j].classList.contains("conf-step__chair_standart")) ? "standart" : "vip";
+					selectedPlaces.push({
+						"row": i + 1,
+						"place": j + 1,
+						"type": typePlace
+					});
+				}
+			}
+		}
+		// Change the selected seats to occupied and save the new configuration
+		const configurationHall = document.querySelector('.conf-step__wrapper').innerHTML;
+		// Forming and sending a request
+		selectSeanse.hallConfig = configurationHall;
+		selectSeanse.salesPlaces = selectedPlaces;
+		localStorage.clear();
+		localStorage.setItem('selectSeanse', JSON.stringify(selectSeanse));
+		const link = document.createElement('a');
+		link.href = "payment.html";
+		link.click();
+	});
+});
