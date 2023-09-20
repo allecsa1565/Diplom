@@ -3,16 +3,13 @@ const selectSeanse = JSON.parse(localStorage.getItem("buyingMeta"));
 let places = "";
 let price = 0;
 
-for (const {
-    row, place, type
-}
-of selectSeanse.salesPlaces {
-    if (places !== "") {
-        places += ", ";
-    }
-    places += `${row}/${place}`;
-    price += type === "standart" ? Number(selectSeanse.priceStandart) : Number(selectSeanse.priceVip);
-}
+selectSeanse.salesPlaces.forEach(salePlace => {
+	if (places) {
+		places += ", ";
+	};
+	places += `${salePlace.row}/${salePlace.place}`;
+	price += salePlace.type === "standart" ? Number(selectSeanse.priceStandart) : Number(selectSeanse.priceVip);
+});
 
 document.querySelector(".ticket__title").innerHTML = selectSeanse.filmName; 
 document.querySelector(".ticket__chairs").innerHTML = places; 
