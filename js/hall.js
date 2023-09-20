@@ -1,4 +1,4 @@
-const selectSeanse = JSON.parse(localStorage.getItem("selectSeanse"));
+const selectSeanse = JSON.parse(localStorage.selectSeanse);
 console.log(selectSeanse);
 
 document.addEventListener("DOMContentLoaded", () => {
