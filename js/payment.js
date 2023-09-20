@@ -1,67 +1,47 @@
-const metaDataBuying = JSON.parse(localStorage.getItem(`buyingMeta`));
-let ticketWrapper;
+'use strict';
 
-window.addEventListener(`load`, () => {
-  ticketWrapper = document.querySelector(`.ticket__info-wrapper`);
-  // Вывести всю информацию по билетам
-  showTicket();
-})
+document.addEventListener('DOMContentLoaded', () => {
 
-// Вывести всю информацию по билетам
-function showTicket() {
-  // Изменить информацию по брони
-  changeInfoBuying();
-  // Кнопка бронирования
-  btnBuying();
-}
+    const ticketDetails = getJSON('ticket-details');
 
-// Изменить информацию по брони
-function changeInfoBuying() {
-  ticketWrapper.querySelector(`.ticket__title`).textContent = metaDataBuying.movieTitle;
-  ticketWrapper.querySelector(`.ticket__chairs`).textContent = metaDataBuying.rowAndSeat;
-  ticketWrapper.querySelector(`.ticket__hall`).textContent = metaDataBuying.hallName;
-  ticketWrapper.querySelector(`.ticket__start`).textContent = metaDataBuying.seanceTime;
-  ticketWrapper.querySelector(`.ticket__cost`).textContent = metaDataBuying.price;
-}
+    // Наполнение страницы
+    // Секция ticket__info-wrapper
+    const ticketInfoWrapper = document.querySelector('.ticket__info-wrapper');
+    ticketInfoWrapper.innerHTML = '';
 
-// Кнопка бронирования
-function btnBuying() {
-  ticketWrapper.querySelector(`.acceptin-button`).addEventListener(`click`, () => {
-    // Отправка забронированных билетов на сервер
-    sendBooking();
-    // Создание мета данных выбранных билетов для веб-хранилища
-    creatMetaData();
-    // Удалить мета данные о сеансе и билетах
-    deleteMetaData();
-    // Переход к странице с QR кодом
-    location.href = 'ticket.html';
-  })
-}
+    const textHtml = `
+      <p class='ticket__info'>На фильм: <span class='ticket__details ticket__title'>${ticketDetails.filmName}</span></p>
+      <p class='ticket__info'>Ряд/Место: <span class='ticket__details ticket__chairs'>${ticketDetails.strRowPlace}</span></p>
+      <p class='ticket__info'>В зале: <span class='ticket__details ticket__hall'>${ticketDetails.hallNameNumber}</span></p>
+      <p class='ticket__info'>Начало сеанса: <span class='ticket__details ticket__start'>${ticketDetails.seanceTime} - ${ticketDetails.seanceDay}</span></p>
+      <p class='ticket__info'>Стоимость: <span class='ticket__details ticket__cost'>${ticketDetails.totalCost}</span> рублей</p>
+      <button class='acceptin-button'>Получить код бронирования</button>
+      <p class='ticket__hint'>После оплаты билет будет доступен в этом окне, а также придёт вам на почту. Покажите QR-код нашему контроллёру у входа в зал.</p>
+      <p class='ticket__hint'>Приятного просмотра!</p>
+    `;
+    ticketInfoWrapper.insertAdjacentHTML('beforeend', textHtml);
 
-// Отправка забронированных билетов на сервер
-function sendBooking() {
-  const xhr = {
-    method: 'POST',
-    url: `https://jscp-diplom.netoserver.ru/`,
-    setRequestHeader: {header: 'Content-type', headerValue:'application/x-www-form-urlencoded'},
-    event: `event=sale_add&timestamp=${metaDataBuying.seanceTimeStamp}&hallId=${metaDataBuying.hallId}&seanceId=${metaDataBuying.seanceId}&hallConfiguration=${metaDataBuying.hallConfig}`,
-  }
-  createRequest(xhr);
-}
+    // Клик по кнопке 'Получить код бронирования'
+    const acceptinButton = document.querySelector('.acceptin-button');
+    acceptinButton?.addEventListener('click', (event) => {
+        // Предполагается, что где-то на этом моменте произошла оплата билета
+        // и пора отправить на сервер обновленный конфиг занятых мест в зале
 
-// Создание мета данных выбранных билетов для веб-хранилища
-function creatMetaData() {
-  const transMetaDataBuying = metaDataBuying;
-  transMetaDataBuying.qrMeta = `Фильм: ${metaDataBuying.movieTitle};
-  Зал: ${metaDataBuying.hallName};
-  Ряд/Место: ${metaDataBuying.rowAndSeat};
-  Начало сеанса: ${metaDataBuying.seanceTime};
-  Стоимость: ${metaDataBuying.price}`;
-  localStorage.removeItem(`buyingMeta`);
-  localStorage.setItem(`buyingMeta`, JSON.stringify(transMetaDataBuying));
-}
+        // В качестве тела POST запроса передайте строку вида event=sale_add&timestamp=${value1}&hallId=${value2}&seanceId=${value3}&hallConfiguration=${value4} Где
+        // timestamp - начало сеанса с учетом даты. Значение указывается в секундах. Подробнее про timestemp можно прочитать тут
+        // hallId - ID зала
+        // seanceId - ID сеанса
+        // hallConfiguration - Строка - html разметка которую следует взять со страницы hall.html внутри контейнера с классом conf-step__wrapper(см разметку).
 
-// Удалить мета данные о сеансе и билетах
-function deleteMetaData() {
-  localStorage.removeItem(`seanceMeta`);
-}
+        const hallsConfigurationObj = getJSON('pre-config-halls-paid-seats'); // из JSON в объект
+        const hallConfiguration = hallsConfigurationObj[ticketDetails.hallId];
+        const requestBodyString = `event=sale_add&timestamp=${ticketDetails.seanceTimeStampInSec}&hallId=${ticketDetails.hallId}&seanceId=${ticketDetails.seanceId}&hallConfiguration=${hallConfiguration}`;
+
+        // Формируем запрос на сервер (Передаем: 1. строка тела запроса, 2. строка с именем источника запроса для инфо в консоли, 3. какая функция будет вызвана после ответа сервера, 4. необходимость вывода данных о загрузке на сервер )
+        createRequest(requestBodyString, 'PAYMENT', updateHtmlPayment, true);
+    });
+
+    function updateHtmlPayment(serverResponse) {
+        window.location.href = 'ticket.html';
+    }
+});
