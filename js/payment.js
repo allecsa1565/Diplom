@@ -6,7 +6,7 @@ let price = 0;
 for (const {
     row, place, type
 }
-of selectSeanse.salesPlaces) {
+of selectSeanse.salesPlaces {
     if (places !== "") {
         places += ", ";
     }
