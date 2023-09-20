@@ -1,4 +1,4 @@
-const selectSeanse = JSON.parse(localStorage.get.Item("selectSeanse"));
+const selectSeanse = JSON.parse(localStorage.selectSeanse);
 
 let places = "";
 let price = 0;
