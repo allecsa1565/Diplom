@@ -6,10 +6,11 @@ let price = 0;
 selectSeanse.salesPlaces.forEach(salePlace => {
 	if (places) {
 		places += ", ";
-	};
+
 	places += `${salePlace.row}/${salePlace.place}`;
 	price += salePlace.type === "standart" ? Number(selectSeanse.priceStandart) : Number(selectSeanse.priceVip);
 });
+}
 
 document.querySelector(".ticket__title").innerHTML = selectSeanse.filmName; 
 document.querySelector(".ticket__chairs").innerHTML = places; 
