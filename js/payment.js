@@ -1,5 +1,3 @@
-"use strict"
-
 const metaDataBuying = JSON.parse(localStorage.getItem(`buyingMeta`));
 let ticketWrapper;
 
