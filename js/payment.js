@@ -29,11 +29,12 @@ console.log(newHallConfig);
 
 document.querySelector(".acceptin-button").addEventListener("click", (event) => {
 	event.preventDefault();
-	fetch("https://jscp-diplom.netoserver.ru/", {
-		method: "POST",
-		headers: {
-			'Content-Type' : 'application/x-www-form-urlencoded'
-		},
-		body: `event=sale_add&timestamp=${selectSeanse.seanceTimeStamp}&hallId=${selectSeanse.hallId}&seanceId=${selectSeanse.seanceId}&hallConfiguration=${newHallConfig}`,
-	});
+        createRequest({
+	url:"https://jscp-diplom.netoserver.ru/", {
+	params: `event=sale_add&timestamp=${selectSeanse.seanceTimeStamp}&hallId=${selectSeanse.hallId}&seanceId=${selectSeanse.seanceId}&hallConfiguration=${newHallConfig}`,	
+	callback: (resp) => {
+		//redirect to ticket
+   }
+  }
+ });		      
 });
