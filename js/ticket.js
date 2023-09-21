@@ -1,6 +1,4 @@
-function generateTicket() {
-  const selectSeanse = JSON.parse(localStorage.getItem('selectSeanse'));
-  console.log(selectSeanse);
+ const selectSeanse = JSON.parse(localStorage.getItem('selectSeanse'));
 
   // мы формируем строку с выбранными местами и подсчитываем общую сумму
   let places = "";
