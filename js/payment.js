@@ -33,7 +33,7 @@ document.querySelector(".acceptin-button").addEventListener("click", (event) => 
 	url:"https://jscp-diplom.netoserver.ru/", 
 	params: `event=sale_add&timestamp=${selectSeanse.seanceTimeStamp}&hallId=${selectSeanse.hallId}&seanceId=${selectSeanse.seanceId}&hallConfiguration=${newHallConfig}`,	
 	callback: (resp) => {
-	  if (resp) => {
+	  if (resp) {
 	     //redirect to ticket
    }       You, 1 second ago * Uncommitted changes          
   }
