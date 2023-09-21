@@ -48,6 +48,5 @@
   qrcode.download();
   document.querySelector(".ticket__info-qr").append(qrcode.result);
   console.log(qrcode.result);
-}
 
 document.addEventListener("DOMContentLoaded", generateTicket);
