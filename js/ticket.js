@@ -1,4 +1,6 @@
- const selectSeanse = JSON.parse(localStorage.getItem('selectSeanse'));
+function generateTicket() {
+const selectSeanse = JSON.parse(localStorage.getItem('selectSeanse'));
+console.log(selectSeanse);	
 
   // мы формируем строку с выбранными местами и подсчитываем общую сумму
   let places = "";
@@ -48,5 +50,6 @@
   qrcode.download();
   document.querySelector(".ticket__info-qr").append(qrcode.result);
   console.log(qrcode.result);
-
+}
+	
 document.addEventListener("DOMContentLoaded", generateTicket);
