@@ -30,7 +30,7 @@ console.log(newHallConfig);
 document.querySelector(".acceptin-button").addEventListener("click", (event) => {
 	event.preventDefault();
         createRequest({
-	url:"https://jscp-diplom.netoserver.ru/", {
+	url:"https://jscp-diplom.netoserver.ru/", 
 	params: `event=sale_add&timestamp=${selectSeanse.seanceTimeStamp}&hallId=${selectSeanse.hallId}&seanceId=${selectSeanse.seanceId}&hallConfiguration=${newHallConfig}`,	
 	callback: (resp) => {
 		//redirect to ticket
