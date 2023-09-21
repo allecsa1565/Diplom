@@ -35,7 +35,7 @@ document.querySelector(".acceptin-button").addEventListener("click", (event) => 
 	  callback: (resp) => {
 	    if (resp) {
 	       //redirect to ticket
-            }       You, 1 second ago * Uncommitted changes          
+            }                 
           }
        });		      
     });
