@@ -1,4 +1,4 @@
-function generateTicket() {
+З9зхfunction generateTicket() {
 const selectSeanse = JSON.parse(localStorage.getItem('selectSeanse'));
 console.log(selectSeanse);	
 
@@ -44,7 +44,9 @@ console.log(selectSeanse);
 
  const qrcode = QRCreator(textQR, { image: "SVG" });
   qrcode.download();
-  document.querySelector(".ticket__info-qr").append(qrcode.result);
+  
+document.querySelector(".ticket__info-qr").src = `data:image/svg+xml;base64,${btoa(new XMLSerializer().serializeToString(qrcode.result))}`;
+
   console.log(qrcode.result);
 }
 	
