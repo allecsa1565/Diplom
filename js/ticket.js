@@ -1,4 +1,4 @@
-З9зхfunction generateTicket() {
+function generateTicket() {
 const selectSeanse = JSON.parse(localStorage.getItem('selectSeanse'));
 console.log(selectSeanse);	
 
