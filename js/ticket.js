@@ -40,7 +40,7 @@ console.log(selectSeanse);
 	});
 
   let textQR = 
-`Фильм: ${selectSeanse.filmName}\nРяд/Место: ${places}\nЗал: ${selectSeanse.hallName}\nНачало: ${dateStr};
+`Фильм: ${selectSeanse.filmName}\nРяд/Место: ${places}\nЗал: ${selectSeanse.hallName}\nНачало: ${dateStr};`
 
  const qrcode = QRCreator(textQR, { image: "SVG" });
   qrcode.download();
